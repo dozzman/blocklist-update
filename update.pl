@@ -22,6 +22,32 @@ my $filename_prefix =  'level';
 my $filename_postfix = '.gz';
 my $full_list_file = "/Users/$ENV{'USER'}/Library/Application Support/uTorrent/ipfilter.dat";
 my $full_list_fp = undef;
+my ($level) = @ARGV;
+my $usage = 
+"Usage:
+update.pl [level]
+
+level:     The list level you would like to download which is either 1, 2 or 3, 3 being the
+           greatest level of IP blocking. The default level is 2.
+";
+
+# extract the level provided by the user, if any
+
+if (not defined $level)
+{
+    print "Using default level 2\n";
+    $level = 2;
+}
+else
+{
+    for($level)
+    {
+        if(/1/) {last;}
+        if(/2/) {last;}
+        if(/3/) {last;}
+        die "$usage\n";
+    }
+}
 
 # get the zip file and store it
 
@@ -32,8 +58,14 @@ foreach my $level ( 1,2 )
     my $url = $url_prefix . $level . $url_postfix;
     print "Downloading file $zip_file now\n";
     my $status = mirror($url, $zip_file);
-
-    if ($status != 200)
+    
+    if ($status == 304)
+    {
+        # this list has not been modified since last update, dont do anything
+        print "List level$level has not been modified, skipping...";
+        next;
+    }
+    elsif ($status != 200)
     {
         # dont need to update/unable to update the list
         die "Download returned status $status";
