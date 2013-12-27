@@ -14,7 +14,7 @@
 use strict;
 use warnings;
 use LWP::Simple qw(mirror);
-use IO::Uncompress::Gunzip qw(gunzip);
+use IO::Uncompress::Gunzip;
 
 my $url_prefix = 'http://list.iblocklist.com/?list=bt_level';
 my $url_postfix = '&fileformat=p2p&archiveformat=gz';
@@ -51,7 +51,7 @@ else
 
 # get the zip file and store it
 
-foreach my $level ( 1,2 )
+foreach my $level ( 1 .. $level )
 {
     my $zip_file = $filename_prefix . $level . $filename_postfix;
     my $list_file = $level . ".dat";
@@ -61,9 +61,8 @@ foreach my $level ( 1,2 )
     
     if ($status == 304)
     {
-        # this list has not been modified since last update, dont do anything
-        print "List level$level has not been modified, skipping...";
-        next;
+        # this list has not been modified since last update
+        print "List level$level has not been modified...\n";
     }
     elsif ($status != 200)
     {
@@ -106,6 +105,11 @@ foreach my $level ( 1,2 )
     unlink $list_file;
 }
 
-close $full_list_fp;
+if( defined $full_list_fp) 
+{
+    close $full_list_fp;
+}
+
+# DONE!
 
 print "DONE!\n";
