@@ -14,7 +14,7 @@
 use strict;
 use warnings;
 use LWP::Simple qw(mirror);
-use IO::Uncompress::Gunzip;
+use IO::Uncompress::Gunzip qw(gunzip);
 
 my $url_prefix = 'http://list.iblocklist.com/?list=bt_level';
 my $url_postfix = '&fileformat=p2p&archiveformat=gz';
