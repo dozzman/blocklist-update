@@ -15,32 +15,38 @@ use strict;
 use warnings;
 use LWP::Simple qw(mirror);
 use IO::Uncompress::Gunzip qw(gunzip);
+use Getopt::Long;
 
 my $url_prefix = 'http://list.iblocklist.com/?list=bt_level';
 my $url_postfix = '&fileformat=p2p&archiveformat=gz';
 my $filename_prefix =  'level';
 my $filename_postfix = '.gz';
-my $full_list_file = "/Users/$ENV{'USER'}/Library/Application Support/uTorrent/ipfilter.dat";
+my $full_list_file = "$ENV{'HOME'}/Library/Application Support/uTorrent/ipfilter.dat";
 my $full_list_fp = undef;
-my ($level) = @ARGV;
-my $usage = 
-"Usage:
-update.pl [level]
+my $top_level = 0;
+my $usage =  <<CAT
+Usage:
+update.pl [--level=num]
 
-level:     The list level you would like to download which is either 1, 2 or 3, 3 being the
-           greatest level of IP blocking. The default level is 2.
-";
+--level=num:    Num is the list level you would like to download
+                which is either 1, 2 or 3, 3 being the
+                greatest level of IP blocking. The default level is 2.
+CAT
+;
+
+GetOptions ('level=i' => \$top_level);
 
 # extract the level provided by the user, if any
 
-if (not defined $level)
+if ($top_level == 0)
 {
     print "Using default level 2\n";
-    $level = 2;
+    $top_level = 2;
 }
 else
 {
-    for($level)
+    # check to see if value given for level is appropriate
+    for($top_level)
     {
         if(/1/) {last;}
         if(/2/) {last;}
@@ -50,8 +56,7 @@ else
 }
 
 # get the zip file and store it
-
-foreach my $level ( 1 .. $level )
+foreach my $level ( 1 .. $top_level )
 {
     my $zip_file = $filename_prefix . $level . $filename_postfix;
     my $list_file = $level . ".dat";
